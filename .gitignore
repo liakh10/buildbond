@@ -1,0 +1,6 @@
+node_modules
+.vercel
+.devenv
+contracts/node_modules
+builder/node_modules
+.DS_Store

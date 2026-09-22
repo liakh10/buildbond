@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Deploy · Buildbond</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500;600&family=Sono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ui/bb.css?v=3">
+<style>
+body{padding:clamp(16px,4vw,48px)}
+.in{width:min(860px,100%);margin:0 auto}
+h1{font-size:clamp(34px,6vw,56px)}
+h2{font:600 15px var(--u);margin-bottom:6px}
+.card{margin-top:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row + .row{margin-top:8px}
+input{height:42px;border:1px solid var(--line2);border-radius:999px;padding:0 16px;min-width:0;flex:1;background:var(--deep);outline:none}
+input:focus{border-color:var(--acc)}
+.st{word-break:break-all;font:12.5px var(--m)}
+pre{font:12.5px/1.6 var(--m);background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;white-space:pre-wrap;word-break:break-all}
+ol{margin:10px 0 0 18px;color:var(--dim)}
+a{color:var(--acc)}
+</style>
+</head>
+<body><div class="in">
+  <h1>Deploy <em>Buildbond</em></h1>
+  <p class="dim" style="margin-top:10px">Two contracts on Robinhood Chain from your wallet: the vault implementation, then the factory that clones it. The deploying wallet becomes the guardian: it names $BOND once and can change the builder only through a 48 hour timelock. It has no power over any vault's money.</p>
+  <div class="card"><div class="row"><button class="btn acc" id="connect">Connect wallet</button><span id="who" class="dim mono"></span></div>
+    <ol>
+      <li>Make a fresh wallet for the keeper. Its key goes into Vercel as BUILDBOND_KEEPER_KEY and nowhere else; give it a little ETH for gas. Its address is the builder below.</li>
+      <li>Deploy the vault implementation, then the factory with the builder address.</li>
+      <li>Put the factory into config.js and push. Then turn on the builder workflow's schedule.</li>
+      <li>When $BOND is live on Pons, name it here so the burns can start.</li>
+    </ol></div>
+  <div class="card"><h2>1 · Vault implementation</h2><div class="row"><button class="btn" data-step="impl" disabled>Deploy BondVault</button><span class="st dim" id="s-impl"></span></div></div>
+  <div class="card"><h2>2 · Factory</h2><div class="row"><input id="builder" placeholder="builder (keeper) address 0x…" autocomplete="off" spellcheck="false"><button class="btn" data-step="factory" disabled>Deploy BondFactory</button></div><div class="row"><span class="st dim" id="s-factory"></span></div></div>
+  <div class="card"><h2>3 · config.js</h2><pre id="out">connect to see the address</pre></div>
+  <div class="card"><h2>4 · Name $BOND</h2><div class="row"><input id="bond" placeholder="$BOND contract on Pons 0x…" autocomplete="off" spellcheck="false"><button class="btn" data-step="bond" disabled>setBondToken</button></div><div class="row"><span class="st dim" id="s-bond"></span></div></div>
+  <div class="card"><h2>Guardian · change the builder</h2><div class="row"><input id="next" placeholder="new builder 0x…" autocomplete="off" spellcheck="false"><button class="btn" data-step="propose" disabled>Propose</button><button class="btn" data-step="activate" disabled>Activate after 48 h</button></div><div class="row"><span class="st dim" id="s-propose"></span><span class="st dim" id="s-activate"></span></div></div>
+</div>
+<script type="module">
+import * as W from '/lib/wallet.js';
+import { explorer } from '/lib/chains.js';
+import { encodeDeployData } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+const $ = id => document.getElementById(id), CHAIN = 4663, VAR = 'BUILDBOND_FACTORY';
+const [FA, VA] = await Promise.all(['BondFactory', 'BondVault'].map(n => fetch('/lib/abi/' + n + '.json?v=1').then(r => r.json())));
+const isAddr = v => /^0x[0-9a-fA-F]{40}$/.test(v || '');
+let S = {}; try { S = JSON.parse(localStorage.getItem('buildbond:deploy') || '{}'); } catch {}
+if (isAddr(window[VAR])) S.factory = S.factory || window[VAR];
+const save = () => { try { localStorage.setItem('buildbond:deploy', JSON.stringify(S)); } catch {} };
+const link = (kind, v) => `<a href="${explorer(CHAIN, kind, v)}" target="_blank" rel="noopener">${v}</a>`;
+async function wait(el, tx) { el.innerHTML = `sent · ${link('tx', tx.hash)} · waiting…`; const rc = await tx.wait(); if (rc.status !== 'success') throw Error('Transaction failed'); return rc; }
+async function paint() {
+  const w = W.state();
+  $('who').textContent = w.address ? W.short(w.address) + ' · chain ' + (w.chainId || '?') : '';
+  document.querySelectorAll('[data-step]').forEach(b => b.disabled = !w.address);
+  if (S.impl) $('s-impl').innerHTML = link('address', S.impl);
+  if (S.factory) $('s-factory').innerHTML = link('address', S.factory);
+  $('out').textContent = 'window.' + VAR + ' = "' + (S.factory || '') + '";';
+}
+const steps = {
+  impl: async el => { el.textContent = 'confirm in wallet…'; const rc = await wait(el, await W.sendTx(CHAIN, { data: VA.bytecode })); S.impl = rc.contractAddress; },
+  factory: async el => { const b = $('builder').value.trim(); if (!isAddr(b)) throw Error('Enter the builder (keeper) address'); if (!isAddr(S.impl)) throw Error('Deploy the vault implementation first'); el.textContent = 'confirm in wallet…'; const rc = await wait(el, await W.sendTx(CHAIN, { data: encodeDeployData({ abi: FA.abi, bytecode: FA.bytecode, args: [S.impl, b] }) })); S.factory = rc.contractAddress; },
+  bond: async el => { const b = $('bond').value.trim(); if (!isAddr(b)) throw Error('Enter the $BOND contract'); if (!isAddr(S.factory)) throw Error('Deploy the factory first'); el.textContent = 'confirm in wallet…'; await wait(el, await W.send(CHAIN, { address: S.factory, abi: FA.abi, functionName: 'setBondToken', args: [b] })); el.innerHTML = '<span class="ok">$BOND named, burns can start</span>'; },
+  propose: async el => { const v = $('next').value.trim(); if (!isAddr(v)) throw Error('Enter the new builder'); el.textContent = 'confirm in wallet…'; await wait(el, await W.send(CHAIN, { address: S.factory, abi: FA.abi, functionName: 'proposeBuilder', args: [v] })); el.innerHTML = '<span class="warn">proposed, activate in 48 hours</span>'; },
+  activate: async el => { el.textContent = 'confirm in wallet…'; await wait(el, await W.send(CHAIN, { address: S.factory, abi: FA.abi, functionName: 'activateBuilder' })); el.innerHTML = '<span class="ok">builder changed</span>'; }
+};
+document.querySelectorAll('[data-step]').forEach(b => b.onclick = async () => { const k = b.dataset.step, el = $('s-' + k); b.disabled = true; try { await steps[k](el); save(); } catch (e) { el.innerHTML = '<span class="bad">' + (e.shortMessage || e.message || e) + '</span>'; } await paint(); });
+$('connect').onclick = () => W.connect().then(paint).catch(e => alert(e.shortMessage || e.message));
+W.onChange(paint); W.restore().then(paint);
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+# The builder: every run asks the keeper (/api/tick) to harvest, burn and hand out one build job, then runs the agent
+# on that job on this free GitHub machine and publishes the app to the gh-pages branch.
+# Secrets: CRON_SECRET and BUILD_SECRET (the same values as in Vercel), GEMINI_API_KEY.
+# The schedule stays off until the factory is deployed (robinhood/CLAUDE.md, the load rule); uncomment it then.
+name: builder
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '*/10 * * * *'
+concurrency:
+  group: builder
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SITE: https://buildbond.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - name: keeper tick
+        id: tick
+        run: |
+          curl -s -X POST -H "authorization: Bearer ${{ secrets.CRON_SECRET }}" "$SITE/api/tick" -o tick.json || echo '{}' > tick.json
+          head -c 3000 tick.json; echo
+          node -e "let t={};try{t=require('./tick.json')}catch{};const fs=require('fs');fs.appendFileSync(process.env.GITHUB_OUTPUT,'job='+(t.job?'yes':'no')+'\n');if(t.job)fs.writeFileSync('job.json',JSON.stringify(t.job))"
+      - name: pages branch
+        if: steps.tick.outputs.job == 'yes'
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages && git worktree add pages -B gh-pages origin/gh-pages
+          else
+            git worktree add --orphan -b gh-pages pages
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.tick.outputs.job == 'yes'
+        with:
+          node-version: 20
+      - name: agent
+        if: steps.tick.outputs.job == 'yes'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BUILD_SECRET: ${{ secrets.BUILD_SECRET }}
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+        run: |
+          cd builder && npm install --no-audit --no-fund && cd ..
+          node builder/agent.mjs job.json pages
+      - name: report a crashed run
+        if: failure() && steps.tick.outputs.job == 'yes'
+        env:
+          BUILD_SECRET: ${{ secrets.BUILD_SECRET }}
+        run: node builder/agent.mjs --abort job.json pages

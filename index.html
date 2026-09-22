@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Buildbond · coins that pay for their own app</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Launch a coin on Pons with a one-paragraph brief. Its trading fees fund an AI agent that builds the app in public, and a quarter of every fee buys $BOND and burns it. Robinhood Chain.">
+<meta property="og:title" content="Buildbond">
+<meta property="og:description" content="Coins that pay for their own app. Robinhood Chain.">
+<meta property="og:image" content="/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#070a08">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500;600&family=Sono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ui/bb.css?v=2">
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="logo" href="/"><img src="/assets/mark.webp" alt=""><span data-name>Buildbond</span></a>
+  <nav class="nav"><a href="#floor">Floor</a><a href="#bond">The bond</a><a href="#launch">Launch</a><a href="#burns">Burns</a><a href="/docs">Docs</a></nav>
+  <div class="acts">
+    <a class="btn sm" data-link="x" target="_blank" rel="noopener" aria-label="X"><img class="xi" src="/assets/x.svg" alt=""></a>
+    <button class="btn sm" id="connect">Connect wallet</button>
+    <a class="btn sm acc" href="#launch">Launch a coin</a>
+  </div>
+</div></header>
+
+<section class="hero" aria-label="Buildbond">
+  <img class="poster" src="/assets/video/hero.jpg" alt="">
+  <video id="heroVid" src="/assets/video/hero.mp4" poster="/assets/video/hero.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+  <div class="veil"></div>
+  <div class="wrap">
+    <p class="cap acc">Robinhood Chain · Pons</p>
+    <h1 style="margin-top:18px">Coins that pay for their <em>own app</em></h1>
+    <p class="sub">Launch a coin with a one-paragraph brief. Its trading fees fund an AI agent that builds the app, in public, one logged step at a time. A quarter of every fee buys $BOND and burns it.</p>
+    <div class="cta"><a class="btn acc" href="#launch">Launch a coin</a><a class="btn" href="#floor">Watch the floor</a></div>
+  </div>
+  <div class="meter"><div class="wrap">
+    <div><span class="cap">Coins</span><b id="m-coins">—</b></div>
+    <div><span class="cap">Fees harvested</span><b id="m-fees">—</b></div>
+    <div><span class="cap">Agent usage billed</span><b id="m-billed">—</b></div>
+    <div><span class="cap">Versions shipped</span><b id="m-ships">—</b></div>
+    <div><span class="cap">$BOND burned</span><b id="m-burn">—</b></div>
+  </div></div>
+</section>
+
+<section id="floor"><div class="wrap">
+  <div class="head rv"><div><p class="cap acc">The floor</p><h2 style="margin-top:14px">Every coin, and the agent <em>working</em> on it</h2></div>
+    <p>Each line on the right is a step the agent took: what it read, what it wrote, what the check in Chrome said, what it cost. Nothing here is replayed or staged.</p></div>
+  <div class="floor rv">
+    <div class="coins" id="coins"><div class="empty">Loading the floor…</div></div>
+    <div class="console" id="console">
+      <div class="top"><span class="who" id="c-who">No coin selected</span><div class="runs"><select id="c-run" aria-label="Run"></select></div></div>
+      <div class="lines" id="c-lines"><div class="idle">Pick a coin to read its log.</div></div>
+      <div class="foot" id="c-foot"></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="bond"><div class="wrap">
+  <div class="head rv"><div><p class="cap acc">The bond</p><h2 style="margin-top:14px">One fee, <em>three</em> shares</h2></div>
+    <p>Pons pays each coin's creator fees to its own vault. Anyone can harvest them, and the contract splits every wei the same way. The numbers under each share are what the contracts have done so far.</p></div>
+  <div class="split">
+    <div class="card flow rv"><svg viewBox="0 0 640 420" role="img" aria-label="Trading fees flow into the vault and split into the agent budget, the $BOND burn and the launcher">
+      <defs><linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="#3ee08f" stop-opacity=".1"/><stop offset="1" stop-color="#3ee08f" stop-opacity=".7"/></linearGradient></defs>
+      <text class="lbl" x="20" y="40">EVERY TRADE ON PONS</text>
+      <text class="big" x="20" y="78">1% creator tax</text>
+      <path d="M40 104 C 40 180, 200 190, 250 210" stroke="url(#gA)" stroke-width="3" fill="none"/>
+      <rect x="250" y="176" width="140" height="70" rx="12" fill="#0b110e" stroke="#2b4a3a"/>
+      <text class="lbl" x="266" y="204">THE COIN'S VAULT</text>
+      <text class="big" x="266" y="232" style="font-size:20px">harvest()</text>
+      <path d="M390 196 C 450 150, 480 90, 560 80" stroke="#3ee08f" stroke-width="7" fill="none" opacity=".9"/>
+      <path d="M390 212 C 460 212, 500 212, 560 212" stroke="#3ee08f" stroke-width="4" fill="none" opacity=".6"/>
+      <path d="M390 228 C 450 280, 490 330, 560 344" stroke="#3ee08f" stroke-width="2.5" fill="none" opacity=".4"/>
+      <text class="big accf" x="566" y="88">60%</text><text class="lbl" x="566" y="108">AGENT</text>
+      <text class="big accf" x="566" y="220">25%</text><text class="lbl" x="566" y="240">BURN</text>
+      <text class="big accf" x="566" y="352">15%</text><text class="lbl" x="566" y="372">LAUNCHER</text>
+    </svg></div>
+    <div class="shares">
+      <div class="share rv"><span class="pct">60</span><div><h4>The agent's budget</h4><p>Stays in the vault. Only the builder can take from it, and only as a bill for model usage with the receipt's hash on chain.</p></div><span class="v" id="s-budget">—</span></div>
+      <div class="share rv"><span class="pct">25</span><div><h4>$BOND, bought and burned</h4><p>Goes to the factory. The keeper buys $BOND with it and sends it to the dead address, with an attestation of the harvests it spent.</p></div><span class="v" id="s-burn">—</span></div>
+      <div class="share rv"><span class="pct">15</span><div><h4>The launcher</h4><p>Owed to whoever launched the coin and wrote the brief, claimable at any time.</p></div><span class="v" id="s-launch">—</span></div>
+    </div>
+  </div>
+  <div class="card rv" style="margin-top:18px"><p class="cap" style="margin-bottom:10px">Fixed in code</p>
+    <table class="fixed"><tbody>
+      <tr><td>Creator tax on every Pons trade</td><td>1%, paid to the coin's vault</td></tr>
+      <tr><td>Split of every harvest</td><td>60% budget · 25% $BOND burn · 15% launcher</td></tr>
+      <tr><td>Launch stake</td><td>0.01 ETH, back to the launcher when v1 ships, or after 30 days if nothing does</td></tr>
+      <tr><td>Largest single bill</td><td>0.02 ETH, at most 0.05 ETH a day per vault</td></tr>
+      <tr><td>Who can take the budget</td><td>only the builder, only as a bill; nobody can withdraw it, the launcher included</td></tr>
+      <tr><td>Changing the builder</td><td>48 hour timelock, visible on chain</td></tr>
+      <tr><td>Keeper rules (off chain)</td><td id="rules">first build at $10 of budget · new version at most every 12 h · burn at $5</td></tr>
+    </tbody></table></div>
+</div></section>
+
+<section id="launch"><div class="wrap">
+  <div class="head rv"><div><p class="cap acc">Launch</p><h2 style="margin-top:14px">Describe the app. <em>Fees</em> build it.</h2></div>
+    <p>One transaction launches the coin on Pons with its vault as the fee recipient. The agent starts once the vault's budget reaches the build threshold.</p></div>
+  <div class="launch">
+    <form class="card rv" id="lf" autocomplete="off">
+      <div class="row2">
+        <div class="field"><label for="f-name">Name <span id="n-name">0/32</span></label><input id="f-name" maxlength="32" placeholder="Busker Tips" required></div>
+        <div class="field"><label for="f-sym">Ticker <span id="n-sym">0/10</span></label><input id="f-sym" maxlength="10" placeholder="BUSK" required style="text-transform:uppercase"></div>
+      </div>
+      <div class="field"><label for="f-brief">The app, in one paragraph <span id="n-brief">0/600</span></label><textarea id="f-brief" maxlength="600" placeholder="What it does, who it is for, what holding the coin unlocks." required></textarea></div>
+      <div class="row2">
+        <div class="field"><label>Logo <span>png, jpeg or webp</span></label><div class="logo-in"><div class="pv" id="pv">none</div><label class="btn sm" for="f-logo">Choose image</label><input type="file" id="f-logo" accept="image/png,image/jpeg,image/webp" hidden></div></div>
+        <div class="field"><label for="f-buy">First buy <span>ETH, optional</span></label><input id="f-buy" inputmode="decimal" placeholder="0"></div>
+      </div>
+    </form>
+    <div class="card rv">
+      <p class="cap" style="margin-bottom:6px">What you send</p>
+      <div class="bill">
+        <div><span>Pons launch fee</span><span id="b-fee">—</span></div>
+        <div><span>Stake, returned at v1</span><span>0.01 ETH</span></div>
+        <div><span>First buy</span><span id="b-buy">0 ETH</span></div>
+        <div class="tot"><span>Total</span><span id="b-tot">—</span></div>
+      </div>
+      <button class="btn acc" id="go" style="width:100%;margin-top:14px" disabled>Connect a wallet to launch</button>
+      <div class="status" id="l-st"></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="burns"><div class="wrap">
+  <div class="head rv"><div><p class="cap acc">Burns</p><h2 style="margin-top:14px">The <em>ledger</em></h2></div>
+    <p>Every burn buys $BOND with the factory's pool and sends it to the dead address. Its attestation is the sha256 of the harvest transactions it spent, listed with it.</p></div>
+  <div class="card rv scrollx"><table class="ledger"><thead><tr><th>When</th><th>ETH in</th><th>$BOND burned</th><th>Harvests</th><th>Attestation</th><th>Tx</th></tr></thead><tbody id="burnRows"><tr><td colspan="6" class="dim">Loading…</td></tr></tbody></table></div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <div class="head rv"><div><p class="cap acc">Questions</p><h2 style="margin-top:14px">Before you <em>launch</em></h2></div></div>
+  <div class="faq rv">
+    <details><summary>Who pays the agent, and how would I know it did not overcharge?</summary><p>The coin's own fees. Each run ends with a receipt: the tokens the model used, the list price, the ETH price from Chainlink and the hash of the whole run log. The receipt's sha256 goes on chain with the bill, and the receipt itself is public on the coin's page. A bill cannot exceed 0.02 ETH, a vault cannot be billed more than 0.05 ETH a day.</p></details>
+    <details><summary>Can anyone take the budget?</summary><p>No. There is no withdraw. The builder address can only bill it for usage, and changing the builder takes 48 hours in public. The launcher gets their 15% share and nothing else.</p></details>
+    <details><summary>What kind of app can the agent build?</summary><p>A static web app with no server of its own: HTML, CSS and JavaScript, a wallet button, holder checks, and a small shared store the platform gives it, so boards, guestbooks, leaderboards and trackers work between people. It is checked in Chrome on desktop and phone before every release and published to GitHub Pages.</p></details>
+    <details><summary>What if the fees stop?</summary><p>The app stays online as it was. The agent only runs when the budget is above the build threshold, and anyone can relight it by sending ETH to the vault: a top-up goes straight into the budget.</p></details>
+    <details><summary>Where does the 25% go exactly?</summary><p>To the factory contract. When the pool is worth $5, the keeper buys $BOND on its Pons curve, or in its Uniswap v4 pool after graduation, and the tokens go to 0x…dEaD. The ledger above lists every burn with its transaction.</p></details>
+    <details><summary>Is this audited?</summary><p>No. The contracts passed a test suite run against a fork of Robinhood Chain mainnet with the real Pons contracts, and they are small enough to read on the Docs page. That is not an audit.</p></details>
+  </div>
+</div></section>
+
+<section id="proof" style="padding-top:40px"><div class="wrap">
+  <div class="coupon rv" id="coupon" title="Copy the $BOND contract">
+    <svg class="guil" viewBox="0 0 300 300" aria-hidden="true"></svg>
+    <div><p class="cap acc">$BOND · Robinhood Chain · Pons</p><div class="ca" id="ca-t">soon</div><button class="btn sm copy" type="button" id="ca-c">Copy</button></div>
+    <div class="acts"><a class="btn sm acc" data-link="pons" target="_blank" rel="noopener"><img src="/assets/pons.png" alt="" style="filter:brightness(0)">Buy</a><a class="btn sm" data-link="dex" target="_blank" rel="noopener">Chart</a><a class="btn sm" data-link="x" target="_blank" rel="noopener" aria-label="X"><img class="xi" src="/assets/x.svg" alt=""></a></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div><a class="logo" href="/"><img src="/assets/mark.webp" alt=""><span data-name>Buildbond</span></a><p style="margin-top:12px">Coins that pay for their own app</p></div>
+  <p class="disc">Buildbond is an experimental protocol on Robinhood Chain. Coins are not investments, apps can fail, the contracts are not audited. The burn is a burn, never a payout. <a href="/docs">Docs</a> · <a href="/deploy">Deploy</a></p>
+</div></footer>
+
+<div class="md" id="md"><div class="box" id="wl"></div></div>
+<script type="module" src="/ui/floor.js?v=1"></script>
+</body>
+</html>

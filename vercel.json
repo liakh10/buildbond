@@ -1,0 +1,11 @@
+{
+  "cleanUrls": true,
+  "headers": [
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
+    { "source": "/config.js", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] },
+    { "source": "/(lib|ui)/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] },
+    { "source": "/sdk.js", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }, { "key": "Access-Control-Allow-Origin", "value": "*" }] }
+  ],
+  "functions": { "api/*.js": { "maxDuration": 60, "includeFiles": "lib/**" } },
+  "rewrites": [{ "source": "/a/:vault", "destination": "/app" }]
+}

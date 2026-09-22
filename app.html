@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Buildbond · coin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070a08">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500;600&family=Sono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ui/bb.css?v=3">
+<style>
+body.flat .bar{background:rgba(7,10,8,.92)}
+.page{padding:110px 0 80px}
+.crumb{font:13px var(--m);color:var(--dim);text-decoration:none}
+.crumb:hover{color:var(--ink)}
+.cohead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:18px 0 26px}
+.cohead h1{font-size:clamp(40px,6vw,76px);line-height:1}
+.cohead .meta{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.cohead .meta .chip{margin-left:0}
+.cohead .links{display:flex;gap:8px;flex-wrap:wrap}
+.brief{font:22px/1.4 var(--d);color:#cbd6cf;max-width:900px;margin-bottom:28px}
+.brief::before{content:"“";color:var(--acc)}.brief::after{content:"”";color:var(--acc)}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.preview{background:var(--deep);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.preview .top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);font:12px var(--m);color:var(--dim)}
+.preview .top .dots{display:flex;gap:6px}.preview .top .dots i{width:9px;height:9px;border-radius:50%;background:var(--line2)}
+.preview .top .url{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview iframe{display:block;width:100%;height:560px;border:0;background:#fff}
+.preview .none{height:560px;display:grid;place-items:center;text-align:center;padding:30px;color:var(--dim)}
+.preview .none b{display:block;font:44px var(--d);color:var(--ink);margin:10px 0}
+.stat{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.stat span:first-child{color:var(--dim)}
+.stat span:last-child{font-family:var(--m);font-size:13px;text-align:right}
+.acts2{display:grid;gap:10px;margin-top:16px}
+.acts2 .row{display:flex;gap:8px}
+.acts2 input{flex:1;min-width:0;background:var(--deep);border:1px solid var(--line2);border-radius:999px;padding:0 16px;height:42px;outline:none}
+.acts2 input:focus{border-color:var(--acc)}
+.st2{font:12.5px var(--m);min-height:18px;word-break:break-word}
+h3{font-size:30px;margin:60px 0 18px}
+.rc{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.7);display:none;place-items:center;padding:20px}
+.rc.on{display:grid}
+.rc .box{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px;width:min(640px,100%);max-height:86vh;overflow:auto}
+.rc pre{font:12px/1.6 var(--m);white-space:pre-wrap;word-break:break-all;background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:12px;color:#cdd8d1}
+@media (max-width:1000px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:620px){.preview iframe,.preview .none{height:460px}.brief{font-size:18px}}
+</style>
+</head>
+<body class="flat">
+<header class="bar"><div class="wrap">
+  <a class="logo" href="/"><img src="/assets/mark.webp" alt=""><span data-name>Buildbond</span></a>
+  <nav class="nav"><a href="/#floor">Floor</a><a href="/#bond">The bond</a><a href="/#launch">Launch</a><a href="/#burns">Burns</a><a href="/docs">Docs</a></nav>
+  <div class="acts">
+    <a class="btn sm" data-link="x" target="_blank" rel="noopener" aria-label="X"><img class="xi" src="/assets/x.svg" alt=""></a>
+    <button class="btn sm" id="connect">Connect wallet</button>
+    <a class="btn sm acc" href="/#launch">Launch a coin</a>
+  </div>
+</div></header>
+
+<main class="page"><div class="wrap">
+  <a class="crumb" href="/#floor">← The floor</a>
+  <div class="cohead">
+    <div><h1 id="name">Loading…</h1><div class="meta" id="meta"></div></div>
+    <div class="links" id="links"></div>
+  </div>
+  <p class="brief" id="brief" hidden></p>
+
+  <div class="grid">
+    <div class="preview">
+      <div class="top"><span class="dots"><i></i><i></i><i></i></span><span class="url" id="purl">no version yet</span><a class="btn sm" id="popen" target="_blank" rel="noopener" hidden>Open</a></div>
+      <div id="pbody"><div class="none">Reading the vault…</div></div>
+    </div>
+    <div class="card">
+      <p class="cap">The vault</p>
+      <div id="stats" style="margin-top:8px"></div>
+      <div class="acts2">
+        <div class="row"><button class="btn" id="harvest">Harvest fees</button><button class="btn" id="claim" hidden>Claim my 15%</button></div>
+        <div class="row"><input id="topv" inputmode="decimal" placeholder="ETH to add to the budget"><button class="btn acc" id="topup">Top up</button></div>
+        <div class="st2" id="ast"></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>The agent's log</h3>
+  <div class="console">
+    <div class="top"><span class="who" id="c-who">Runs</span><div class="runs"><select id="c-run" aria-label="Run"></select></div></div>
+    <div class="lines" id="c-lines"></div>
+  </div>
+
+  <h3>On chain</h3>
+  <div class="card scrollx"><table class="ledger"><thead><tr><th>When</th><th>Event</th><th>Amount</th><th>Detail</th><th>Tx</th></tr></thead><tbody id="hist"><tr><td colspan="5" class="dim">Loading…</td></tr></tbody></table></div>
+</div></main>
+
+<footer><div class="wrap">
+  <div><a class="logo" href="/"><img src="/assets/mark.webp" alt=""><span data-name>Buildbond</span></a><p style="margin-top:12px">Coins that pay for their own app</p></div>
+  <p class="disc">Apps are built by an AI agent and published as they pass their checks. They can be wrong or break. Coins are not investments, the contracts are not audited. <a href="/docs">Docs</a></p>
+</div></footer>
+
+<div class="rc" id="rc"><div class="box"><p class="cap acc">Usage receipt</p><p id="rc-v" style="margin-top:10px"></p><pre id="rc-j"></pre><button class="btn sm" style="margin-top:14px" id="rc-x">Close</button></div></div>
+<div class="md" id="md"><div class="box" id="wl"></div></div>
+<script type="module" src="/ui/app.js?v=1"></script>
+</body>
+</html>
