@@ -1,6 +1,6 @@
-/* ================= CONFIG: единственное место, где меняются данные ================= */
+/* Configuration served with the site. Change the address here once the token is live. */
 window.SITE = {
-  CA:      "SOON",                       /* строго "SOON" до лаунча $BOND, потом 0x… (42 символа) */
+  CA:      "SOON",                       /* "SOON" before launch; paste the 0x address once it exists */
   X_URL:   "https://x.com/soon",
   NAME:    "Buildbond",
   TICKER:  "$BOND",
